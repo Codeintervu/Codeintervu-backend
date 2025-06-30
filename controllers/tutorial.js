@@ -1,5 +1,6 @@
 import Tutorial from "../models/Tutorial.js";
 import { cloudinary } from "../config/cloudinary.js";
+import Category from "../models/Category.js";
 
 // @desc    Fetch all tutorials
 // @route   GET /api/tutorials
@@ -33,13 +34,25 @@ export const getTutorialById = async (req, res) => {
   }
 };
 
+// Helper to generate slug from title
+function slugify(text) {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+}
+
 // @desc    Create a new tutorial
 // @route   POST /api/tutorials
 // @access  Private/Admin
 export const createTutorial = async (req, res) => {
   const { title, category, sections } = req.body;
   try {
-    const tutorial = new Tutorial({ title, category, sections });
+    const slug = slugify(title);
+    const tutorial = new Tutorial({ title, slug, category, sections });
     const createdTutorial = await tutorial.save();
     res.status(201).json(createdTutorial);
   } catch (error) {
@@ -315,6 +328,30 @@ export const updateTutorialSection = async (req, res) => {
     res.json(updatedTutorial);
   } catch (error) {
     console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+// @desc    Fetch a tutorial by category path and slug
+// @route   GET /api/tutorials/:categoryPath/:slug
+// @access  Public
+export const getTutorialByCategoryAndSlug = async (req, res) => {
+  try {
+    const { categoryPath, slug } = req.params;
+    const category = await Category.findOne({ path: categoryPath });
+    if (!category) {
+      return res.status(404).json({ message: "Category not found" });
+    }
+    const tutorial = await Tutorial.findOne({
+      category: category._id,
+      slug,
+    }).populate("category", "name");
+    if (tutorial) {
+      res.json(tutorial);
+    } else {
+      res.status(404).json({ message: "Tutorial not found" });
+    }
+  } catch (error) {
     res.status(500).json({ message: "Server Error" });
   }
 };

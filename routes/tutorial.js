@@ -7,6 +7,7 @@ import {
   deleteTutorial,
   deleteTutorialSection,
   updateTutorialSection,
+  getTutorialByCategoryAndSlug,
 } from "../controllers/tutorial.js";
 import auth from "../middleware/auth.js";
 import multer from "multer";
@@ -32,5 +33,7 @@ router
   .route("/:tutorialId/sections/:sectionId")
   .put(auth, sectionUploads, updateTutorialSection)
   .delete(auth, deleteTutorialSection);
+
+router.route("/:categoryPath/:slug").get(getTutorialByCategoryAndSlug);
 
 export default router;
