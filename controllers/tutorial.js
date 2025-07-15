@@ -20,7 +20,7 @@ export const getTutorials = async (req, res) => {
 // @access  Public
 export const getTutorialById = async (req, res) => {
   try {
-    const tutorial = await Tutorial.findById(req.params.id).populate(
+    const tutorial = await Tutorial.findById(req.params.tutorialId).populate(
       "category",
       "name"
     );
@@ -92,7 +92,7 @@ export const addSectionToTutorial = async (req, res) => {
     compilerLanguage,
     compilerBoilerplate,
   } = req.body;
-  const { id } = req.params;
+  const { tutorialId } = req.params;
 
   try {
     let parsedContentBlocks = JSON.parse(contentBlocks);
@@ -131,7 +131,7 @@ export const addSectionToTutorial = async (req, res) => {
     }
 
     const updatedTutorial = await Tutorial.findByIdAndUpdate(
-      id,
+      tutorialId,
       { $push: { sections: newSection } },
       { new: true, runValidators: true }
     );
@@ -153,7 +153,7 @@ export const addSectionToTutorial = async (req, res) => {
 // @access  Private/Admin
 export const deleteTutorial = async (req, res) => {
   try {
-    const tutorial = await Tutorial.findById(req.params.id);
+    const tutorial = await Tutorial.findById(req.params.tutorialId);
 
     if (tutorial) {
       await tutorial.deleteOne();
