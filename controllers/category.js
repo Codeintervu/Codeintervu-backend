@@ -54,7 +54,7 @@ export const addCategory = async (req, res) => {
 // @access  Private/Admin
 export const deleteCategory = async (req, res) => {
   try {
-    const category = await Category.findById(req.params.id);
+    const category = await Category.findById(req.params.categoryId);
 
     if (category) {
       await category.deleteOne();
