@@ -18,22 +18,39 @@ const router = express.Router();
 // Multer setup for Cloudinary uploads
 const upload = multer({ storage });
 
-router.route("/").get(getTutorials).post(auth, createTutorial);
+// Base routes
+router.get("/", getTutorials);
+router.post("/", auth, createTutorial);
 
-router.route("/:id").get(getTutorialById).delete(auth, deleteTutorial);
+// ID-based routes (for admin operations)
+router.get("/by-id/:tutorialId", getTutorialById);
+router.delete("/by-id/:tutorialId", auth, deleteTutorial);
 
 const sectionUploads = upload.fields([
   { name: "mainMedia", maxCount: 1 },
   { name: "contentBlockMedia" },
 ]);
 
-router.route("/:id/sections").post(auth, sectionUploads, addSectionToTutorial);
+// Section management routes (ID-based)
+router.post(
+  "/by-id/:tutorialId/sections",
+  auth,
+  sectionUploads,
+  addSectionToTutorial
+);
+router.put(
+  "/by-id/:tutorialId/sections/:sectionId",
+  auth,
+  sectionUploads,
+  updateTutorialSection
+);
+router.delete(
+  "/by-id/:tutorialId/sections/:sectionId",
+  auth,
+  deleteTutorialSection
+);
 
-router
-  .route("/:tutorialId/sections/:sectionId")
-  .put(auth, sectionUploads, updateTutorialSection)
-  .delete(auth, deleteTutorialSection);
-
-router.route("/:categoryPath/:slug").get(getTutorialByCategoryAndSlug);
+// Slug-based routes (for frontend pretty URLs)
+router.get("/cat/:categoryPath/:slug", getTutorialByCategoryAndSlug);
 
 export default router;
