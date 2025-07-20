@@ -5,7 +5,7 @@ import Category from "../models/Category.js";
 // @access  Public
 export const getCategories = async (req, res) => {
   try {
-    const categories = await Category.find();
+    const categories = await Category.find().sort({ order: 1, name: 1 }); // Sort by order first, then by name
     res.json(categories);
   } catch (error) {
     res.status(500).json({ message: "Server Error" });
@@ -63,6 +63,25 @@ export const deleteCategory = async (req, res) => {
       res.status(404).json({ message: "Category not found" });
     }
   } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+// @desc    Update category order
+// @route   PUT /api/categories/order
+// @access  Private/Admin
+export const updateCategoryOrder = async (req, res) => {
+  try {
+    const { categoryOrders } = req.body; // Array of { categoryId, order }
+
+    // Update each category's order
+    for (const item of categoryOrders) {
+      await Category.findByIdAndUpdate(item.categoryId, { order: item.order });
+    }
+
+    res.json({ message: "Category order updated successfully" });
+  } catch (error) {
+    console.error("Error updating category order:", error);
     res.status(500).json({ message: "Server Error" });
   }
 };

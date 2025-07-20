@@ -4,6 +4,7 @@ import {
   getCategoryByPath,
   addCategory,
   deleteCategory,
+  updateCategoryOrder,
 } from "../controllers/category.js";
 import auth from "../middleware/auth.js";
 
@@ -18,5 +19,6 @@ router.get("/by-path/:path", getCategoryByPath);
 
 // ID-based routes (for admin operations)
 router.delete("/by-id/:categoryId", auth, deleteCategory);
+router.put("/order", auth, updateCategoryOrder);
 
 export default router;

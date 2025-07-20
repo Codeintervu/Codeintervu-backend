@@ -1,6 +1,9 @@
 import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
+import compression from "compression";
+import rateLimit from "express-rate-limit";
 import { connectDB } from "./db/connectDB.js";
 import adminRoutes from "./routes/admin.js";
 import categoryRoutes from "./routes/category.js";
@@ -11,11 +14,38 @@ dotenv.config();
 
 const app = express();
 
+// Security middleware
+app.use(helmet());
+
+// Compression middleware
+app.use(compression());
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: "Too many requests from this IP, please try again later.",
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use(limiter);
+
 // CORS configuration
 const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
+
+    // For development, allow all localhost origins
+    if (process.env.NODE_ENV !== "production") {
+      if (
+        origin.includes("localhost") ||
+        origin.includes("127.0.0.1") ||
+        origin.includes("chrome-untrusted")
+      ) {
+        return callback(null, true);
+      }
+    }
 
     const allowedOrigins = [
       "https://codeintervu.com",

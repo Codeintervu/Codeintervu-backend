@@ -5,6 +5,7 @@ const CategorySchema = new mongoose.Schema(
     name: { type: String, required: true, unique: true },
     path: { type: String, required: true, unique: true },
     description: { type: String },
+    order: { type: Number, default: 0 }, // Add order field for custom arrangement
   },
   { timestamps: true }
 );
