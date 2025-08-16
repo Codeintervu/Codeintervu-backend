@@ -16,3 +16,6 @@ yarn-error.log*
 .vscode/
 
 /helper.txt
+
+# uploads
+uploads/

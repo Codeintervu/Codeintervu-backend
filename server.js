@@ -9,6 +9,7 @@ import adminRoutes from "./routes/admin.js";
 import categoryRoutes from "./routes/category.js";
 import tutorialRoutes from "./routes/tutorial.js";
 import quizRoutes from "./routes/quiz.js";
+import projectRoutes from "./routes/project.js";
 
 dotenv.config();
 
@@ -141,6 +142,15 @@ try {
   console.log("✅ Quiz routes registered");
 } catch (error) {
   console.error("❌ Error registering quiz routes:", error);
+  process.exit(1);
+}
+
+try {
+  console.log("Registering project routes...");
+  app.use("/api/projects", projectRoutes);
+  console.log("✅ Project routes registered");
+} catch (error) {
+  console.error("❌ Error registering project routes:", error);
   process.exit(1);
 }
 
