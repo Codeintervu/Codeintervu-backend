@@ -668,7 +668,7 @@ const getQuestionMeta = async (req, res) => {
           : question.answer,
       image: `${
         process.env.FRONTEND_URL || "https://yourdomain.com"
-      }/api/questions/${question._id}/preview-image`,
+      }/assets/images/logo.png`,
       url: `${
         process.env.FRONTEND_URL || "https://yourdomain.com"
       }/interview-questions/${question.category}/${question._id}`,
