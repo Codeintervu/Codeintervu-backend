@@ -194,7 +194,7 @@ const projectSchema = new mongoose.Schema(
 );
 
 // Index for better query performance
-projectSchema.index({ key: 1 });
+// Note: unique: true on key field automatically creates an index
 projectSchema.index({ isActive: 1 });
 projectSchema.index({ order: 1 });
 projectSchema.index({ createdAt: -1 });

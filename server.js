@@ -10,6 +10,8 @@ import categoryRoutes from "./routes/category.js";
 import tutorialRoutes from "./routes/tutorial.js";
 import quizRoutes from "./routes/quiz.js";
 import projectRoutes from "./routes/project.js";
+import interviewQuestionRoutes from "./routes/interviewQuestion.js";
+import interviewQuestionCategoryRoutes from "./routes/interviewQuestionCategory.js";
 
 dotenv.config();
 
@@ -151,6 +153,30 @@ try {
   console.log("✅ Project routes registered");
 } catch (error) {
   console.error("❌ Error registering project routes:", error);
+  process.exit(1);
+}
+
+try {
+  console.log("Registering interview question routes...");
+  app.use("/api/interview-questions", interviewQuestionRoutes);
+  console.log("✅ Interview question routes registered");
+} catch (error) {
+  console.error("❌ Error registering interview question routes:", error);
+  process.exit(1);
+}
+
+try {
+  console.log("Registering interview question category routes...");
+  app.use(
+    "/api/interview-question-categories",
+    interviewQuestionCategoryRoutes
+  );
+  console.log("✅ Interview question category routes registered");
+} catch (error) {
+  console.error(
+    "❌ Error registering interview question category routes:",
+    error
+  );
   process.exit(1);
 }
 
