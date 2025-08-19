@@ -1,17 +1,12 @@
 import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-class SocialMediaImageGenerator {
+class SimpleImageGenerator {
   constructor() {
     this.width = 1200;
     this.height = 630;
   }
 
-  // Generate HTML template for social media preview
+  // Generate a simple HTML template for social media preview
   generateQuestionPreviewHTML(question) {
     const difficultyColors = {
       Easy: "#10b981",
@@ -44,23 +39,11 @@ class SocialMediaImageGenerator {
         body {
             width: ${this.width}px;
             height: ${this.height}px;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             position: relative;
             overflow: hidden;
-        }
-        
-        .pattern {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0.05;
-            background-image: 
-                linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
-            background-size: 50px 50px;
+            color: white;
         }
         
         .container {
@@ -72,13 +55,14 @@ class SocialMediaImageGenerator {
         }
         
         .header {
-            color: white;
+            text-align: left;
         }
         
         .logo {
             font-size: 48px;
             font-weight: bold;
             margin-bottom: 10px;
+            color: white;
         }
         
         .tagline {
@@ -91,6 +75,7 @@ class SocialMediaImageGenerator {
             display: flex;
             flex-direction: column;
             justify-content: center;
+            max-width: 100%;
         }
         
         .question-header {
@@ -107,6 +92,7 @@ class SocialMediaImageGenerator {
             font-size: 16px;
             font-weight: bold;
             margin-right: 20px;
+            display: inline-block;
         }
         
         .category {
@@ -121,6 +107,7 @@ class SocialMediaImageGenerator {
             line-height: 1.3;
             margin-bottom: 20px;
             max-width: 100%;
+            word-wrap: break-word;
         }
         
         .answer {
@@ -128,6 +115,7 @@ class SocialMediaImageGenerator {
             font-size: 20px;
             line-height: 1.5;
             max-width: 100%;
+            word-wrap: break-word;
         }
         
         .footer {
@@ -140,7 +128,6 @@ class SocialMediaImageGenerator {
     </style>
 </head>
 <body>
-    <div class="pattern"></div>
     <div class="container">
         <div class="header">
             <div class="logo">CodeIntervu</div>
@@ -168,16 +155,10 @@ class SocialMediaImageGenerator {
 </html>`;
   }
 
-  // Generate preview image using HTML template
+  // Generate preview HTML
   async generateQuestionPreview(question) {
     try {
       const html = this.generateQuestionPreviewHTML(question);
-
-      // For now, return the HTML as a string
-      // In production, you would use a service like:
-      // - Puppeteer to convert HTML to image
-      // - Cloudinary's HTML-to-image feature
-      // - A headless browser service
 
       return {
         html: html,
@@ -191,7 +172,7 @@ class SocialMediaImageGenerator {
     }
   }
 
-  // Generate preview image and save HTML to file
+  // Save HTML to file
   async generateAndSaveQuestionPreview(question, outputPath) {
     try {
       const result = await this.generateQuestionPreview(question);
@@ -203,7 +184,7 @@ class SocialMediaImageGenerator {
     }
   }
 
-  // Generate preview image and return as base64 (placeholder)
+  // Generate preview HTML and return as base64
   async generateQuestionPreviewBase64(question) {
     try {
       const result = await this.generateQuestionPreview(question);
@@ -215,4 +196,4 @@ class SocialMediaImageGenerator {
   }
 }
 
-export default SocialMediaImageGenerator;
+export default SimpleImageGenerator;

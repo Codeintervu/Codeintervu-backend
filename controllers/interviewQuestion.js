@@ -1,5 +1,6 @@
 import InterviewQuestion from "../models/InterviewQuestion.js";
 import InterviewQuestionCategory from "../models/InterviewQuestionCategory.js";
+import SimpleImageGenerator from "../utils/simpleImageGenerator.js";
 
 // Get all questions (frontend) - with search, filter, pagination
 const getAllQuestions = async (req, res) => {
@@ -713,30 +714,25 @@ const generatePreviewImage = async (req, res) => {
       isActive: true,
     }).select("name color");
 
-    // For now, return a simple JSON response with image data
-    // In a production environment, you would generate an actual image
-    // using libraries like canvas, puppeteer, or a service like Cloudinary
-
-    const imageData = {
-      width: 1200,
-      height: 630,
-      backgroundColor: "#1F2937",
-      textColor: "#FFFFFF",
-      title: `${categoryInfo?.name || question.category} Interview Question`,
-      question: question.question,
-      difficulty: question.difficulty,
-      category: categoryInfo?.name || question.category,
-      tags: question.tags,
-      siteName: "CodeIntervu",
+    // Prepare question data with category info
+    const questionData = {
+      ...question.toObject(),
+      categoryName: categoryInfo?.name || question.category,
+      categoryColor: categoryInfo?.color || "#10B981",
     };
 
-    // Return the image data as JSON for now
-    // In production, this would return an actual image file
-    res.status(200).json({
-      success: true,
-      data: imageData,
-      message: "Preview image data generated successfully",
-    });
+    // Generate the preview HTML
+    const imageGenerator = new SimpleImageGenerator();
+    const result = await imageGenerator.generateQuestionPreview(questionData);
+
+    // Set response headers for HTML that social media crawlers can interpret
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.setHeader("Cache-Control", "public, max-age=3600"); // Cache for 1 hour
+    res.setHeader("X-Frame-Options", "ALLOWALL"); // Allow embedding
+    res.setHeader("X-Content-Type-Options", "nosniff");
+
+    // Send the HTML
+    res.send(result.html);
   } catch (error) {
     console.error("Error generating preview image:", error);
     res.status(500).json({
