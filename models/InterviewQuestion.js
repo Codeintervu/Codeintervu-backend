@@ -35,11 +35,13 @@ const interviewQuestionSchema = new mongoose.Schema(
         maxlength: [50, "Tag cannot exceed 50 characters"],
       },
     ],
-    company: {
-      type: String,
-      trim: true,
-      maxlength: [100, "Company name cannot exceed 100 characters"],
-    },
+    companies: [
+      {
+        type: String,
+        trim: true,
+        maxlength: [100, "Company name cannot exceed 100 characters"],
+      },
+    ],
     isActive: {
       type: Boolean,
       default: true,
@@ -59,7 +61,7 @@ const interviewQuestionSchema = new mongoose.Schema(
 interviewQuestionSchema.index({ category: 1, isActive: 1 });
 interviewQuestionSchema.index({ difficulty: 1, isActive: 1 });
 interviewQuestionSchema.index({ tags: 1 });
-interviewQuestionSchema.index({ company: 1 });
+interviewQuestionSchema.index({ companies: 1 });
 interviewQuestionSchema.index({ question: "text", answer: "text" });
 
 // Virtual for formatted category name - will be populated from the category model

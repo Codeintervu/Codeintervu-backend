@@ -24,7 +24,7 @@ const getAllQuestions = async (req, res) => {
         { question: { $regex: search, $options: "i" } },
         { answer: { $regex: search, $options: "i" } },
         { tags: { $in: [new RegExp(search, "i")] } },
-        { company: { $regex: search, $options: "i" } },
+        { companies: { $in: [new RegExp(search, "i")] } },
       ];
     }
 
@@ -40,7 +40,7 @@ const getAllQuestions = async (req, res) => {
 
     // Company filter
     if (company && company !== "all") {
-      query.company = company;
+      query.companies = company;
     }
 
     // Sorting
@@ -151,12 +151,12 @@ const searchQuestions = async (req, res) => {
 
     let query = { isActive: true };
 
-    // Search in question, answer, tags, and company
+    // Search in question, answer, tags, and companies
     query.$or = [
       { question: { $regex: q, $options: "i" } },
       { answer: { $regex: q, $options: "i" } },
       { tags: { $in: [new RegExp(q, "i")] } },
-      { company: { $regex: q, $options: "i" } },
+      { companies: { $in: [new RegExp(q, "i")] } },
     ];
 
     // Additional filters
@@ -313,13 +313,13 @@ const getQuestionStats = async (req, res) => {
       }
 
       // Count by company
-      const companies = await InterviewQuestion.distinct("company", {
+      const companies = await InterviewQuestion.distinct("companies", {
         isActive: true,
-        company: { $exists: true, $ne: null, $ne: "" },
+        companies: { $exists: true, $ne: null, $ne: "" },
       });
       for (const comp of companies) {
         const count = await InterviewQuestion.countDocuments({
-          company: comp,
+          companies: comp,
           isActive: true,
         });
         companyCounts[comp] = count;
@@ -366,7 +366,7 @@ const getAllQuestionsAdmin = async (req, res) => {
         { question: { $regex: search, $options: "i" } },
         { answer: { $regex: search, $options: "i" } },
         { tags: { $in: [new RegExp(search, "i")] } },
-        { company: { $regex: search, $options: "i" } },
+        { companies: { $in: [new RegExp(search, "i")] } },
       ];
     }
 
@@ -382,7 +382,7 @@ const getAllQuestionsAdmin = async (req, res) => {
 
     // Company filter
     if (company && company !== "all") {
-      query.company = company;
+      query.companies = company;
     }
 
     // Active filter
