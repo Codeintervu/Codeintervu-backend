@@ -487,6 +487,14 @@ const getQuestionById = async (req, res) => {
       categoryColor: categoryInfo ? categoryInfo.color : "#10B981",
     };
 
+    // Handle migration from old 'company' field to new 'companies' array
+    if (questionWithCategory.company && !questionWithCategory.companies) {
+      questionWithCategory.companies = [questionWithCategory.company];
+      delete questionWithCategory.company;
+    } else if (!questionWithCategory.companies) {
+      questionWithCategory.companies = [];
+    }
+
     res.status(200).json({
       success: true,
       data: questionWithCategory,
@@ -505,6 +513,12 @@ const getQuestionById = async (req, res) => {
 const updateQuestion = async (req, res) => {
   try {
     const questionData = req.body;
+
+    // Handle migration from old 'company' field to new 'companies' array
+    if (questionData.company && !questionData.companies) {
+      questionData.companies = [questionData.company];
+      delete questionData.company;
+    }
 
     const question = await InterviewQuestion.findByIdAndUpdate(
       req.params.id,
