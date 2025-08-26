@@ -9,6 +9,7 @@ const getAllQuestions = async (req, res) => {
       search,
       category,
       difficulty,
+      company,
       page = 1,
       limit = 10,
       sort = "createdAt",
@@ -23,6 +24,7 @@ const getAllQuestions = async (req, res) => {
         { question: { $regex: search, $options: "i" } },
         { answer: { $regex: search, $options: "i" } },
         { tags: { $in: [new RegExp(search, "i")] } },
+        { company: { $regex: search, $options: "i" } },
       ];
     }
 
@@ -34,6 +36,11 @@ const getAllQuestions = async (req, res) => {
     // Difficulty filter
     if (difficulty && difficulty !== "all") {
       query.difficulty = difficulty;
+    }
+
+    // Company filter
+    if (company && company !== "all") {
+      query.company = company;
     }
 
     // Sorting
@@ -144,11 +151,12 @@ const searchQuestions = async (req, res) => {
 
     let query = { isActive: true };
 
-    // Search in question, answer, and tags
+    // Search in question, answer, tags, and company
     query.$or = [
       { question: { $regex: q, $options: "i" } },
       { answer: { $regex: q, $options: "i" } },
       { tags: { $in: [new RegExp(q, "i")] } },
+      { company: { $regex: q, $options: "i" } },
     ];
 
     // Additional filters
@@ -275,6 +283,7 @@ const getQuestionStats = async (req, res) => {
     // Simplify the stats structure
     const categoryCounts = {};
     const difficultyCounts = {};
+    const companyCounts = {};
 
     if (stats.length > 0) {
       const stat = stats[0];
@@ -302,6 +311,19 @@ const getQuestionStats = async (req, res) => {
         });
         difficultyCounts[diff] = count;
       }
+
+      // Count by company
+      const companies = await InterviewQuestion.distinct("company", {
+        isActive: true,
+        company: { $exists: true, $ne: null, $ne: "" },
+      });
+      for (const comp of companies) {
+        const count = await InterviewQuestion.countDocuments({
+          company: comp,
+          isActive: true,
+        });
+        companyCounts[comp] = count;
+      }
     }
 
     res.status(200).json({
@@ -310,6 +332,7 @@ const getQuestionStats = async (req, res) => {
         total: stats.length > 0 ? stats[0].total : 0,
         byCategory: categoryCounts,
         byDifficulty: difficultyCounts,
+        byCompany: companyCounts,
       },
     });
   } catch (error) {
@@ -329,6 +352,7 @@ const getAllQuestionsAdmin = async (req, res) => {
       search,
       category,
       difficulty,
+      company,
       isActive,
       sort = "createdAt",
       order = "desc",
@@ -342,6 +366,7 @@ const getAllQuestionsAdmin = async (req, res) => {
         { question: { $regex: search, $options: "i" } },
         { answer: { $regex: search, $options: "i" } },
         { tags: { $in: [new RegExp(search, "i")] } },
+        { company: { $regex: search, $options: "i" } },
       ];
     }
 
@@ -353,6 +378,11 @@ const getAllQuestionsAdmin = async (req, res) => {
     // Difficulty filter
     if (difficulty && difficulty !== "all") {
       query.difficulty = difficulty;
+    }
+
+    // Company filter
+    if (company && company !== "all") {
+      query.company = company;
     }
 
     // Active filter
