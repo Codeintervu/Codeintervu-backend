@@ -9,7 +9,7 @@ import {
   updateTutorialSection,
   getTutorialByCategoryAndSlug,
 } from "../controllers/tutorial.js";
-import auth from "../middleware/auth.js";
+import { adminAuth } from "../middleware/auth.js";
 import multer from "multer";
 import { storage } from "../config/cloudinary.js";
 
@@ -20,11 +20,11 @@ const upload = multer({ storage });
 
 // Base routes
 router.get("/", getTutorials);
-router.post("/", auth, createTutorial);
+router.post("/", adminAuth, createTutorial);
 
 // ID-based routes (for admin operations)
 router.get("/by-id/:tutorialId", getTutorialById);
-router.delete("/by-id/:tutorialId", auth, deleteTutorial);
+router.delete("/by-id/:tutorialId", adminAuth, deleteTutorial);
 
 const sectionUploads = upload.fields([
   { name: "mainMedia", maxCount: 1 },
@@ -34,19 +34,19 @@ const sectionUploads = upload.fields([
 // Section management routes (ID-based)
 router.post(
   "/by-id/:tutorialId/sections",
-  auth,
+  adminAuth,
   sectionUploads,
   addSectionToTutorial
 );
 router.put(
   "/by-id/:tutorialId/sections/:sectionId",
-  auth,
+  adminAuth,
   sectionUploads,
   updateTutorialSection
 );
 router.delete(
   "/by-id/:tutorialId/sections/:sectionId",
-  auth,
+  adminAuth,
   deleteTutorialSection
 );
 

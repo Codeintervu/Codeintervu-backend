@@ -14,7 +14,7 @@ import {
   getQuestionMeta,
   generatePreviewImage,
 } from "../controllers/interviewQuestion.js";
-import auth from "../middleware/auth.js";
+import { adminAuth } from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -47,24 +47,24 @@ router.get("/:id/preview-image", generatePreviewImage);
 // ==================== ADMIN ROUTES (Protected) ====================
 
 // Get all questions (admin) - with search, filter, sort
-router.get("/admin/all", auth, getAllQuestionsAdmin);
+router.get("/admin/all", adminAuth, getAllQuestionsAdmin);
 
 // Get question statistics (admin)
-router.get("/admin/stats", auth, getQuestionStats);
+router.get("/admin/stats", adminAuth, getQuestionStats);
 
 // Create new question (admin)
-router.post("/admin", auth, createQuestion);
+router.post("/admin", adminAuth, createQuestion);
 
 // Get single question by ID (admin)
-router.get("/admin/:id", auth, getQuestionById);
+router.get("/admin/:id", adminAuth, getQuestionById);
 
 // Update question (admin)
-router.put("/admin/:id", auth, updateQuestion);
+router.put("/admin/:id", adminAuth, updateQuestion);
 
 // Delete question (admin)
-router.delete("/admin/:id", auth, deleteQuestion);
+router.delete("/admin/:id", adminAuth, deleteQuestion);
 
 // Toggle question status (admin)
-router.patch("/admin/:id/toggle", auth, toggleQuestionStatus);
+router.patch("/admin/:id/toggle", adminAuth, toggleQuestionStatus);
 
 export default router;
