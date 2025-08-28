@@ -189,18 +189,19 @@ try {
   );
   console.log("✅ Interview question category routes registered");
 } catch (error) {
-  try {
-    console.log("Registering progress routes...");
-    app.use("/api/progress", progressRoutes);
-    console.log("✅ Progress routes registered");
-  } catch (error) {
-    console.error("❌ Error registering progress routes:", error);
-    process.exit(1);
-  }
   console.error(
     "❌ Error registering interview question category routes:",
     error
   );
+  process.exit(1);
+}
+
+try {
+  console.log("Registering progress routes...");
+  app.use("/api/progress", progressRoutes);
+  console.log("✅ Progress routes registered");
+} catch (error) {
+  console.error("❌ Error registering progress routes:", error);
   process.exit(1);
 }
 
