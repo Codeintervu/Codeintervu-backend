@@ -6,12 +6,14 @@ import compression from "compression";
 import rateLimit from "express-rate-limit";
 import { connectDB } from "./db/connectDB.js";
 import adminRoutes from "./routes/admin.js";
+import authRoutes from "./routes/auth.js";
 import categoryRoutes from "./routes/category.js";
 import tutorialRoutes from "./routes/tutorial.js";
 import quizRoutes from "./routes/quiz.js";
 import projectRoutes from "./routes/project.js";
 import interviewQuestionRoutes from "./routes/interviewQuestion.js";
 import interviewQuestionCategoryRoutes from "./routes/interviewQuestionCategory.js";
+import progressRoutes from "./routes/progress.js";
 
 dotenv.config();
 
@@ -23,23 +25,31 @@ app.use(helmet());
 // Compression middleware
 app.use(compression());
 
-// Rate limiting
+// Trust proxy for correct client IP behind proxies (Render/NGINX/etc.)
+app.set("trust proxy", 1);
+
+// Global rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: "Too many requests from this IP, please try again later.",
+  windowMs: 15 * 60 * 1000,
+  max: process.env.NODE_ENV === "production" ? 300 : 1000,
   standardHeaders: true,
   legacyHeaders: false,
 });
 app.use(limiter);
 
+// Slightly tighter rate limiting for admin routes in production
+const adminLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: process.env.NODE_ENV === "production" ? 150 : 1000,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // CORS configuration
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
 
-    // For development, allow all localhost origins
     if (process.env.NODE_ENV !== "production") {
       if (
         origin.includes("localhost") ||
@@ -50,23 +60,20 @@ const corsOptions = {
       }
     }
 
-    const allowedOrigins = [
-      "https://codeintervu.com",
-      "https://www.codeintervu.com",
-      "https://admincodeintervu.netlify.app",
-      "http://localhost:3000",
-      "http://localhost:5173",
-      "http://localhost:4000",
-      "http://127.0.0.1:5173",
-      "http://127.0.0.1:3000",
-      "http://127.0.0.1:4000",
-    ];
+    const envOrigins = (process.env.ALLOWED_ORIGINS || "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const allowedOrigins = envOrigins.length
+      ? envOrigins
+      : [
+          "https://codeintervu.com",
+          "https://www.codeintervu.com",
+          "https://admincodeintervu.netlify.app",
+        ];
 
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error("Not allowed by CORS"));
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -117,6 +124,15 @@ try {
   console.log("✅ Admin routes registered");
 } catch (error) {
   console.error("❌ Error registering admin routes:", error);
+  process.exit(1);
+}
+
+try {
+  console.log("Registering auth routes...");
+  app.use("/api/auth", authRoutes);
+  console.log("✅ Auth routes registered");
+} catch (error) {
+  console.error("❌ Error registering auth routes:", error);
   process.exit(1);
 }
 
@@ -173,6 +189,14 @@ try {
   );
   console.log("✅ Interview question category routes registered");
 } catch (error) {
+  try {
+    console.log("Registering progress routes...");
+    app.use("/api/progress", progressRoutes);
+    console.log("✅ Progress routes registered");
+  } catch (error) {
+    console.error("❌ Error registering progress routes:", error);
+    process.exit(1);
+  }
   console.error(
     "❌ Error registering interview question category routes:",
     error

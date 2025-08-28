@@ -1,5 +1,13 @@
 import express from "express";
-import { registerAdmin, loginAdmin } from "../controllers/admin.js";
+import {
+  registerAdmin,
+  loginAdmin,
+  getAllUsers,
+  getUserById,
+  getUserStats,
+  deleteUser,
+} from "../controllers/admin.js";
+import { adminAuth } from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -9,5 +17,11 @@ const router = express.Router();
 
 // Login route
 router.post("/login", loginAdmin);
+
+// User management routes (protected)
+router.get("/users", adminAuth, getAllUsers);
+router.get("/users/:id", adminAuth, getUserById);
+router.get("/stats", adminAuth, getUserStats);
+router.delete("/users/:id", adminAuth, deleteUser);
 
 export default router;

@@ -24,7 +24,7 @@ import {
 } from "../controllers/project.js";
 
 // Import middleware
-import auth from "../middleware/auth.js";
+import { adminAuth } from "../middleware/auth.js";
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -76,45 +76,45 @@ const cleanupUploads = (req, res, next) => {
 // ==================== ADMIN ROUTES (Protected) ====================
 
 // Get all projects (admin) - with search, filter, sort
-router.get("/admin", auth, getAllProjects);
+router.get("/admin", adminAuth, getAllProjects);
 
 // Get project statistics (admin)
-router.get("/admin/stats", auth, getProjectStats);
+router.get("/admin/stats", adminAuth, getProjectStats);
 
 // Create new project (admin)
 router.post(
   "/admin",
-  auth,
+  adminAuth,
   upload.single("image"),
   cleanupUploads,
   createProject
 );
 
 // Get single project by ID (admin)
-router.get("/admin/:id", auth, getProjectById);
+router.get("/admin/:id", adminAuth, getProjectById);
 
 // Update project (admin)
 router.put(
   "/admin/:id",
-  auth,
+  adminAuth,
   upload.single("image"),
   cleanupUploads,
   updateProject
 );
 
 // Delete project (admin)
-router.delete("/admin/:id", auth, deleteProject);
+router.delete("/admin/:id", adminAuth, deleteProject);
 
 // Toggle project status (admin)
-router.patch("/admin/:id/toggle-status", auth, toggleProjectStatus);
+router.patch("/admin/:id/toggle-status", adminAuth, toggleProjectStatus);
 
 // Update project order (admin)
-router.patch("/admin/:id/order", auth, updateProjectOrder);
+router.patch("/admin/:id/order", adminAuth, updateProjectOrder);
 
 // Upload project image (admin)
 router.post(
   "/admin/upload-image",
-  auth,
+  adminAuth,
   upload.single("image"),
   cleanupUploads,
   uploadProjectImage
