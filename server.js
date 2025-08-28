@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
+import morgan from "morgan";
 import compression from "compression";
 import rateLimit from "express-rate-limit";
 import { connectDB } from "./db/connectDB.js";
@@ -45,11 +46,19 @@ const adminLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Request logging (skip noisy health checks)
+app.use(
+  morgan(process.env.NODE_ENV === "production" ? "combined" : "dev", {
+    skip: (req) => req.path === "/health",
+  })
+);
+
 // CORS configuration
 const corsOptions = {
   origin: function (origin, callback) {
     if (!origin) return callback(null, true);
 
+    // Allow dev origins when not in production
     if (process.env.NODE_ENV !== "production") {
       if (
         origin.includes("localhost") ||
@@ -64,7 +73,8 @@ const corsOptions = {
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean);
-    const allowedOrigins = envOrigins.length
+
+    let allowedOrigins = envOrigins.length
       ? envOrigins
       : [
           "https://codeintervu.com",
@@ -72,8 +82,27 @@ const corsOptions = {
           "https://admincodeintervu.netlify.app",
         ];
 
+    // Always allow common localhost dev origins (hardcoded)
+    allowedOrigins = Array.from(
+      new Set(
+        allowedOrigins.concat([
+          "http://localhost:5173",
+          "http://127.0.0.1:5173",
+          "http://localhost:4173",
+          "http://127.0.0.1:4173",
+          "http://localhost:3000",
+          "http://127.0.0.1:3000",
+        ])
+      )
+    );
+
     if (allowedOrigins.includes(origin)) return callback(null, true);
-    return callback(new Error("Not allowed by CORS"));
+
+    // Do not throw – deny CORS cleanly without triggering a 500
+    if (process.env.NODE_ENV !== "test") {
+      console.warn("CORS denied for origin:", origin);
+    }
+    return callback(null, false);
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
