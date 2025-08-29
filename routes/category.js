@@ -27,7 +27,12 @@ router.get("/by-path/:path", getCategoryByPath);
 // Order management route
 router.put("/order", adminAuth, updateCategoryOrder);
 
-// Ad management routes (must come before any other :categoryId routes)
+// Test route to check if routing works
+router.get("/test-ad-route", (req, res) => {
+  res.json({ message: "Ad route test successful" });
+});
+
+// Ad management routes (original working format)
 router.post(
   "/:categoryId/ad",
   adminAuth,
@@ -37,7 +42,7 @@ router.post(
 router.get("/:categoryId/ad", getAdImage);
 router.delete("/:categoryId/ad", adminAuth, removeAdImage);
 
-// Top banner ad management routes
+// Top banner ad management routes (original working format)
 router.post(
   "/:categoryId/top-banner-ad",
   adminAuth,

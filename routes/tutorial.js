@@ -22,7 +22,8 @@ const upload = multer({ storage });
 router.get("/", getTutorials);
 router.post("/", adminAuth, createTutorial);
 
-// ID-based routes (for admin operations)
+// ID-based routes (for admin operations) - specific routes first
+router.get("/by-id/:tutorialId/sections", getTutorialById); // GET sections (same as getTutorialById)
 router.get("/by-id/:tutorialId", getTutorialById);
 router.delete("/by-id/:tutorialId", adminAuth, deleteTutorial);
 

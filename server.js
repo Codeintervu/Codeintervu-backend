@@ -46,12 +46,17 @@ const adminLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-// Request logging (skip noisy health checks)
-app.use(
-  morgan(process.env.NODE_ENV === "production" ? "combined" : "dev", {
-    skip: (req) => req.path === "/health",
-  })
-);
+// Request logging (skip noisy health checks and reduce verbosity)
+// Set DISABLE_LOGGING=true in .env to disable all request logging
+if (process.env.DISABLE_LOGGING !== "true") {
+  app.use(
+    morgan(process.env.NODE_ENV === "production" ? "combined" : "tiny", {
+      skip: (req) =>
+        req.path === "/health" ||
+        (req.path.includes("/api/categories") && req.method === "GET"),
+    })
+  );
+}
 
 // CORS configuration
 const corsOptions = {
