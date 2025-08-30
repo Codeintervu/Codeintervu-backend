@@ -15,6 +15,7 @@ import projectRoutes from "./routes/project.js";
 import interviewQuestionRoutes from "./routes/interviewQuestion.js";
 import interviewQuestionCategoryRoutes from "./routes/interviewQuestionCategory.js";
 import progressRoutes from "./routes/progress.js";
+import analyticsRoutes from "./routes/analytics.js";
 
 dotenv.config();
 
@@ -239,6 +240,15 @@ try {
   console.log("✅ Progress routes registered");
 } catch (error) {
   console.error("❌ Error registering progress routes:", error);
+  process.exit(1);
+}
+
+try {
+  console.log("Registering analytics routes...");
+  app.use("/api/analytics", analyticsRoutes);
+  console.log("✅ Analytics routes registered");
+} catch (error) {
+  console.error("❌ Error registering analytics routes:", error);
   process.exit(1);
 }
 
